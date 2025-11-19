@@ -7,6 +7,9 @@ const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
 const dashboardRoutes = require('./routes/dashboard'); 
 const adminRoutes = require('./routes/admin');
+const auth = require('./middleware/auth');
+const institutionRoutes = require('./routes/institution');
+const sectorRoutes = require('./routes/sector');
 require('dotenv').config();
 
 const app = express();
@@ -25,6 +28,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/dashboard', dashboardRoutes); 
 app.use('/api/admin', adminRoutes);
+app.use('/api/institution', auth, institutionRoutes);
+app.use('/api/sector', auth, sectorRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 

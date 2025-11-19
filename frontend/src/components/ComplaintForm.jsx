@@ -1,4 +1,4 @@
-// ComplaintForm.jsx - Updated with backend connection
+// ComplaintForm.jsx - Updated with REAL institutions from backend
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -39,8 +39,9 @@ const ComplaintForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const [loadingInstitutions, setLoadingInstitutions] = useState(true);
 
-  // Sample Rwanda location data
+  // Sample Rwanda location data (keep this as it's fine)
   const rwandaData = {
     provinces: [
       { id: 1, name: 'Kigali' },
@@ -79,19 +80,32 @@ const ComplaintForm = () => {
     ]
   };
 
-  const sampleInstitutions = [
-    { id: 1, name: 'REG', type: 'Energy' },
-    { id: 2, name: 'WASAC', type: 'Water' },
-    { id: 3, name: 'RRA', type: 'Tax' },
-    { id: 4, name: 'Ministry of Infrastructure', type: 'Infrastructure' },
-    { id: 5, name: 'City of Kigali', type: 'Local Government' },
-    { id: 6, name: 'Ministry of Health', type: 'Health' },
-    { id: 7, name: 'Rwanda National Police', type: 'Security' }
-  ];
-
   // Check if user is logged in
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
+
+  // ✅ NEW: Fetch REAL institutions from backend
+  const fetchInstitutions = async () => {
+    try {
+      setLoadingInstitutions(true);
+      console.log('🔄 Fetching institutions from backend...');
+      
+      const response = await axios.get('http://localhost:5000/api/admin/all-institutions');
+      
+      if (response.data.success) {
+        setInstitutions(response.data.data);
+        console.log('✅ Loaded institutions:', response.data.data);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching institutions:', error);
+      setMessage({
+        type: 'error',
+        text: 'Failed to load institutions. Please refresh the page.'
+      });
+    } finally {
+      setLoadingInstitutions(false);
+    }
+  };
 
   useEffect(() => {
     // Check if user is logged in
@@ -103,12 +117,15 @@ const ComplaintForm = () => {
       setUserData(JSON.parse(user));
     }
 
-    // Load location data and institutions
+    // Load location data
     setLocations(rwandaData);
-    setInstitutions(sampleInstitutions);
+    
+    // ✅ Load REAL institutions from backend
+    fetchInstitutions();
   }, []);
 
-  // Handle location cascading
+  // ... (keep all your existing functions: handleProvinceChange, handleDistrictChange, etc.)
+  // Handle location cascading - KEEP ALL YOUR EXISTING FUNCTIONS
   const handleProvinceChange = (provinceId) => {
     const filteredDistricts = rwandaData.districts.filter(d => d.province_id == provinceId);
     setLocations(prev => ({
@@ -206,7 +223,7 @@ const ComplaintForm = () => {
     }
   };
 
-  // UPDATED: Handle form submission with backend connection
+  // UPDATED: Handle form submission - use institution NAME instead of ID
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -240,13 +257,18 @@ const ComplaintForm = () => {
       submitData.append('province', provinceName);
       submitData.append('district', districtName);
       submitData.append('sector', sectorName);
-      submitData.append('cell', cellName);
-      submitData.append('village', villageName);
+      submitData.append('cell', cellName || '');
+      submitData.append('village', villageName || '');
       
-      // Add institution
-      const institutionName = institutions.find(i => i.id == formData.institution_id)?.name || '';
-      submitData.append('institution', institutionName);
-      submitData.append('category', 'General');
+      // ✅ FIXED: Get institution NAME from selected institution
+      const selectedInstitution = institutions.find(i => i.id == formData.institution_id);
+      if (selectedInstitution) {
+        submitData.append('institution', selectedInstitution.name);
+        submitData.append('category', selectedInstitution.category || 'General');
+      } else {
+        submitData.append('institution', '');
+        submitData.append('category', 'General');
+      }
       
       // Add image evidence
       if (formData.image_proof) {
@@ -369,7 +391,8 @@ const ComplaintForm = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Problem Details Section */}
+            {/* ... (keep all your existing form sections the same) */}
+            {/* Problem Details Section - KEEP EXISTING */}
             <div className="border-b border-gray-200 pb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Problem Details</h3>
               
@@ -452,7 +475,7 @@ const ComplaintForm = () => {
               </div>
             </div>
 
-            {/* Rwanda Location Hierarchy Section */}
+            {/* Rwanda Location Hierarchy Section - KEEP EXISTING */}
             <div className="border-b border-gray-200 pb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Location in Rwanda</h3>
               
@@ -564,7 +587,7 @@ const ComplaintForm = () => {
                   </select>
                 </div>
 
-                {/* Institution */}
+                {/* ✅ UPDATED: Institution Dropdown with REAL data */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Related Institution
@@ -574,19 +597,30 @@ const ComplaintForm = () => {
                     value={formData.institution_id}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-menyesha-blue"
+                    disabled={loadingInstitutions}
                   >
                     <option value="">Select Institution (Optional)</option>
-                    {institutions.map(institution => (
-                      <option key={institution.id} value={institution.id}>
-                        {institution.name} - {institution.type}
-                      </option>
-                    ))}
+                    {loadingInstitutions ? (
+                      <option value="" disabled>Loading institutions...</option>
+                    ) : (
+                      institutions.map(institution => (
+                        <option key={institution.id} value={institution.id}>
+                          {institution.name} - {institution.category}
+                        </option>
+                      ))
+                    )}
                   </select>
+                  {loadingInstitutions && (
+                    <p className="text-xs text-gray-500 mt-1">Loading registered institutions...</p>
+                  )}
+                  {!loadingInstitutions && institutions.length === 0 && (
+                    <p className="text-xs text-gray-500 mt-1">No institutions registered yet</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Contact Information Section (for anonymous users) */}
+            {/* Contact Information Section (for anonymous users) - KEEP EXISTING */}
             {!isLoggedIn && (
               <div className="border-b border-gray-200 pb-8">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Contact Information</h3>

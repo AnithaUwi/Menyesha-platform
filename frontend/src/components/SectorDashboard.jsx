@@ -1,67 +1,156 @@
-// SectorDashboard.jsx
-import React, { useState } from 'react';
-
+// SectorDashboard.jsx - Updated with real backend data
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import ComplaintDetailModal from './ComplaintDetailModal';
+import { logout, getCurrentUser } from '../utils/auth';
 const SectorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Mock data for sector admin
-  const sectorData = {
-    name: "Remera Sector",
-    district: "Gasabo",
-    province: "Kigali",
-    adminName: "Sector Administrator"
-  };
-
-  const sectorStats = {
-    totalComplaints: 47,
-    newComplaints: 12,
-    inProgress: 18,
-    resolved: 15,
-    avgResolutionTime: "3.2 days"
-  };
-
-  const recentComplaints = [
-    {
-      id: 1,
-      title: "Pothole on KN 45 St",
-      category: "Road Infrastructure",
-      location: "Remera, Gasabo",
-      status: "in_progress",
-      submittedDate: "2024-01-15",
-      citizen: "Jean Claude",
-      priority: "high"
-    },
-    {
-      id: 2,
-      title: "Garbage Collection Delay",
-      category: "Sanitation",
-      location: "Gishushu, Remera",
-      status: "submitted",
-      submittedDate: "2024-01-14",
-      citizen: "Marie A.",
-      priority: "medium"
-    },
-    {
-      id: 3,
-      title: "Street Light Repair",
-      category: "Public Utilities",
-      location: "Amahoro Stadium Rd",
-      status: "resolved",
-      submittedDate: "2024-01-10",
-      citizen: "Paul R.",
-      priority: "medium"
-    },
-    {
-      id: 4,
-      title: "Drainage Blockage",
-      category: "Infrastructure",
-      location: "KG 11 Ave",
-      status: "in_progress",
-      submittedDate: "2024-01-13",
-      citizen: "Alice M.",
-      priority: "high"
+  // Real data states
+  const [sectorData, setSectorData] = useState({
+    name: "Loading...",
+    district: "",
+    province: "",
+    adminName: "Loading..."
+  });
+   const [currentUser, setCurrentUser] = useState(null);
+const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      logout();
     }
-  ];
+  };
+
+  const [sectorStats, setSectorStats] = useState({
+    totalComplaints: 0,
+    newComplaints: 0,
+    inProgress: 0,
+    resolved: 0,
+    avgResolutionTime: "0 days"
+  });
+
+  const [recentComplaints, setRecentComplaints] = useState([]);
+  const [loading, setLoading] = useState({
+    stats: true,
+    complaints: true
+  });
+  const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [priorityFilter, setPriorityFilter] = useState('All Priority');
+    const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Get token from localStorage
+  const getToken = () => {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+  };
+
+  // Fetch sector dashboard statistics
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(prev => ({ ...prev, stats: true }));
+      const token = getToken();
+      
+      const response = await axios.get('http://localhost:5000/api/sector/dashboard-stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        setSectorStats(response.data.data);
+        setSectorData({
+          name: response.data.data.sectorName,
+          district: response.data.data.district,
+          province: response.data.data.province,
+          adminName: response.data.data.adminName
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching sector stats:', error);
+      setError('Failed to load dashboard statistics');
+    } finally {
+      setLoading(prev => ({ ...prev, stats: false }));
+    }
+  };
+
+  // Fetch complaints for sector
+  const fetchComplaints = async () => {
+    try {
+      setLoading(prev => ({ ...prev, complaints: true }));
+      const token = getToken();
+      
+      // Build query parameters for filtering
+      const params = {};
+      if (statusFilter !== 'All Status') params.status = statusFilter;
+      if (priorityFilter !== 'All Priority') params.priority = priorityFilter;
+
+      const response = await axios.get('http://localhost:5000/api/sector/complaints', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        params: params
+      });
+
+      if (response.data.success) {
+        setRecentComplaints(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching sector complaints:', error);
+      setError('Failed to load complaints');
+    } finally {
+      setLoading(prev => ({ ...prev, complaints: false }));
+    }
+  };
+
+  // View complaint details
+ const handleViewComplaint = (complaintId) => {
+    setSelectedComplaintId(complaintId);
+    setIsModalOpen(true);
+  };
+
+  // Update complaint status
+  const handleUpdateStatus = (complaintId, newStatus) => {
+    // TODO: Implement status update
+    console.log('Update status:', complaintId, newStatus);
+    alert(`Status update feature coming soon!`);
+  };
+
+  const refreshData = () => {
+  fetchDashboardStats();
+  fetchComplaints();
+};
+
+  // Load data when component mounts
+  useEffect(() => {
+    fetchDashboardStats();
+    fetchComplaints();
+  }, []);
+
+   useEffect(() => {
+    const user = getCurrentUser();
+    if (user) {
+      setCurrentUser(user);
+    }
+  }, []);
+
+  // Refetch complaints when filters change
+  useEffect(() => {
+    if (!loading.stats) { // Only refetch if initial load is done
+      fetchComplaints();
+    }
+  }, [statusFilter, priorityFilter]);
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -77,7 +166,7 @@ const SectorDashboard = () => {
       case 'submitted': return 'Submitted';
       case 'in_progress': return 'In Progress';
       case 'resolved': return 'Resolved';
-      default: return status;
+      default: return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
   };
 
@@ -103,9 +192,24 @@ const SectorDashboard = () => {
               >
                 ← Back to Home
               </button>
+ <button 
+            onClick={handleLogout}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+
+
+
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Sector Admin Dashboard</h1>
-                <p className="text-sm text-gray-600">{sectorData.name}, {sectorData.district}</p>
+                <p className="text-sm text-gray-600">
+                  {sectorData.name}, {sectorData.district}
+                  {loading.stats && <span className="ml-2 text-gray-400">Loading...</span>}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -120,97 +224,129 @@ const SectorDashboard = () => {
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg border border-red-300">
+              {error}
+              <button 
+                onClick={() => setError('')}
+                className="float-right text-red-600 hover:text-red-800"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-menyesha-blue rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Total Complaints</dt>
-                      <dd className="text-lg font-semibold text-gray-900">{sectorStats.totalComplaints}</dd>
-                    </dl>
+            {loading.stats ? (
+              // Loading skeletons
+              Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="bg-white overflow-hidden shadow rounded-lg animate-pulse">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 bg-gray-300 rounded-md p-3"></div>
+                      <div className="ml-5 w-0 flex-1">
+                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-6 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              ))
+            ) : (
+              <>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 bg-menyesha-blue rounded-md p-3">
+                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Total Complaints</dt>
+                          <dd className="text-lg font-semibold text-gray-900">{sectorStats.totalComplaints}</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">New Today</dt>
-                      <dd className="text-lg font-semibold text-gray-900">{sectorStats.newComplaints}</dd>
-                    </dl>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">New Today</dt>
+                          <dd className="text-lg font-semibold text-gray-900">{sectorStats.newComplaints}</dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">In Progress</dt>
-                      <dd className="text-lg font-semibold text-gray-900">{sectorStats.inProgress}</dd>
-                    </dl>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">In Progress</dt>
+                          <dd className="text-lg font-semibold text-gray-900">{sectorStats.inProgress}</dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Resolved</dt>
-                      <dd className="text-lg font-semibold text-gray-900">{sectorStats.resolved}</dd>
-                    </dl>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
+                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Resolved</dt>
+                          <dd className="text-lg font-semibold text-gray-900">{sectorStats.resolved}</dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Avg. Resolution</dt>
-                      <dd className="text-lg font-semibold text-gray-900">{sectorStats.avgResolutionTime}</dd>
-                    </dl>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Avg. Resolution</dt>
+                          <dd className="text-lg font-semibold text-gray-900">{sectorStats.avgResolutionTime}</dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
           {/* Tabs */}
@@ -242,89 +378,132 @@ const SectorDashboard = () => {
                   </h3>
                   <p className="mt-1 max-w-2xl text-sm text-gray-500">
                     Manage and track complaints in your sector
+                    {recentComplaints.length > 0 && ` • ${recentComplaints.length} complaint(s) found`}
                   </p>
                 </div>
                 <div className="flex space-x-3">
-                  <select className="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  <select 
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    disabled={loading.complaints}
+                  >
                     <option>All Status</option>
                     <option>Submitted</option>
                     <option>In Progress</option>
                     <option>Resolved</option>
                   </select>
-                  <select className="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  <select 
+                    value={priorityFilter}
+                    onChange={(e) => setPriorityFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    disabled={loading.complaints}
+                  >
                     <option>All Priority</option>
                     <option>High</option>
                     <option>Medium</option>
                     <option>Low</option>
                   </select>
+                  <button
+                    onClick={fetchComplaints}
+                    disabled={loading.complaints}
+                    className="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 disabled:bg-gray-400"
+                  >
+                    {loading.complaints ? 'Loading...' : 'Refresh'}
+                  </button>
                 </div>
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Complaint
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Submitted By
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Priority
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {recentComplaints.map((complaint) => (
-                    <tr key={complaint.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{complaint.title}</div>
-                          <div className="text-sm text-gray-500">{complaint.location}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{complaint.category}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{complaint.citizen}</div>
-                        <div className="text-sm text-gray-500">{complaint.submittedDate}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(complaint.status)}`}>
-                          {getStatusText(complaint.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(complaint.priority)}`}>
-                          {complaint.priority.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-menyesha-blue hover:text-blue-700 mr-3">
-                          View
-                        </button>
-                        <button className="text-green-600 hover:text-green-700 mr-3">
-                          Update
-                        </button>
-                        <button className="text-gray-600 hover:text-gray-700">
-                          Assign
-                        </button>
-                      </td>
+              {loading.complaints ? (
+                <div className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">Loading complaints...</p>
+                </div>
+              ) : recentComplaints.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <p>No complaints found in your sector.</p>
+                  <p className="text-sm mt-1">
+                    {statusFilter !== 'All Status' || priorityFilter !== 'All Priority' 
+                      ? 'Try changing your filters' 
+                      : 'All complaints are handled and resolved!'}
+                  </p>
+                </div>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Complaint
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Category
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Submitted By
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Priority
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {recentComplaints.map((complaint) => (
+                      <tr key={complaint.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{complaint.title}</div>
+                            <div className="text-sm text-gray-500">{complaint.location}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{complaint.category || 'General'}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{complaint.citizen}</div>
+                          <div className="text-sm text-gray-500">{formatDate(complaint.submittedDate)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(complaint.submittedDate)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(complaint.status)}`}>
+                            {getStatusText(complaint.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(complaint.priority)}`}>
+                            {complaint.priority.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={() => handleViewComplaint(complaint.id)}
+                            className="text-menyesha-blue hover:text-blue-700 mr-3"
+                          >
+                            View
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateStatus(complaint.id, 'in_progress')}
+                            className="text-green-600 hover:text-green-700 mr-3"
+                          >
+                            Update
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 
@@ -348,7 +527,19 @@ const SectorDashboard = () => {
             <div className="bg-white shadow rounded-lg p-6 md:col-span-2">
               <h4 className="text-lg font-medium text-gray-900 mb-4">Sector Performance</h4>
               <div className="flex items-center justify-center h-32 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <p className="text-gray-500">Performance charts will be displayed here</p>
+                <p className="text-gray-500">
+                  {loading.stats ? 'Loading performance data...' : 'Performance charts will be displayed here'}
+                </p>
+<ComplaintDetailModal
+        complaintId={selectedComplaintId}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedComplaintId(null);
+        }}
+         onStatusUpdate={refreshData} 
+      />
+
               </div>
             </div>
           </div>

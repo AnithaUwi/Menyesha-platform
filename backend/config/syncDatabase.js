@@ -1,16 +1,26 @@
 // config/syncDatabase.js
 const { sequelize } = require('./database');
 const User = require('../models/user');
-const Complaint = require('../models/Complaint'); // ADD THIS
+const Complaint = require('../models/Complaint');
 
 const syncDatabase = async () => {
   try {
-    // Create all tables automatically
-    await sequelize.sync({ alter : true });
-    console.log('✅ Database tables created successfully!');
-    console.log('📊 Tables: users, complaints'); // UPDATE THIS
+    // TEMPORARY FIX: Use safe sync without altering tables
+    await sequelize.sync({ force: false, alter: false });
+    console.log('✅ Database connected successfully!');
+    console.log('📊 Tables: users, complaints');
+    
+    // Set up model associations
+    Object.keys(sequelize.models).forEach(modelName => {
+      if (sequelize.models[modelName].associate) {
+        sequelize.models[modelName].associate(sequelize.models);
+      }
+    });
+    console.log('🔗 Model associations set up successfully!');
+    
   } catch (error) {
-    console.error('❌ Error creating database tables:', error);
+    console.error('❌ Database sync error:', error.message);
+    console.log('💡 Tip: This is usually safe - your tables already exist');
   }
 };
 

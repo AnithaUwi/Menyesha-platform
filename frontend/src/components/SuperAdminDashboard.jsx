@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NewInstitutionForm from './NewInstitutionForm';
+import { logout, getCurrentUser } from '../utils/auth';
 
 const SuperAdminDashboard = () => {
   // Real data states
@@ -25,7 +26,7 @@ const SuperAdminDashboard = () => {
     users: true
   });
   const [error, setError] = useState('');
-  
+  const [currentUser, setCurrentUser] = useState(null);
   // New states for modals
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedInstitution, setSelectedInstitution] = useState(null);
@@ -114,7 +115,7 @@ const SuperAdminDashboard = () => {
     setIsInstitutionModalOpen(true);
   };
 
-  // Toggle user status (activate/deactivate) - FIXED: Only affects individual user
+  // Toggle user status (activate/deactivate)
   const toggleUserStatus = async (userId, currentStatus) => {
     if (!window.confirm(`Are you sure you want to ${currentStatus === 'active' ? 'deactivate' : 'activate'} this user?`)) {
       return;
@@ -152,53 +153,58 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  // Toggle institution status - FIXED: Only affects individual institution
- // Toggle institution status - CORRECTED VERSION
-const toggleInstitutionStatus = async (institutionId, currentStatus) => {
-  if (!window.confirm(`Are you sure you want to ${currentStatus === 'active' ? 'disable' : 'enable'} this institution?`)) {
-    return;
-  }
-
-  try {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-    
-    // Find the institution admin user for this institution
-    const institutionAdmin = institutions.find(inst => inst.id === institutionId);
-    
-    if (!institutionAdmin) {
-      setError('Institution admin not found');
+  // Toggle institution status
+  const toggleInstitutionStatus = async (institutionId, currentStatus) => {
+    if (!window.confirm(`Are you sure you want to ${currentStatus === 'active' ? 'disable' : 'enable'} this institution?`)) {
       return;
     }
 
-    // Use the institution admin's USER ID, not the institution ID
-    const response = await axios.put(`http://localhost:5000/api/admin/users/${institutionAdmin.id}/status`, {
-      status: newStatus
-    });
+    try {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      
+      // Find the institution admin user for this institution
+      const institutionAdmin = institutions.find(inst => inst.id === institutionId);
+      
+      if (!institutionAdmin) {
+        setError('Institution admin not found');
+        return;
+      }
 
-    if (response.data.success) {
-      // Update local state - only update the specific institution
-      setInstitutions(prev => prev.map(inst => 
-        inst.id === institutionId ? { ...inst, status: newStatus } : inst
-      ));
-      
-      // Add to recent activities
-      const newActivity = {
-        id: Date.now(),
-        action: `Institution ${newStatus === 'active' ? 'Enabled' : 'Disabled'}`,
-        target: institutionAdmin.name || 'Institution',
-        admin: 'Super Admin',
-        time: 'Just now'
-      };
-      setRecentActivities(prev => [newActivity, ...prev.slice(0, 4)]);
-      
-      // Refresh stats
-      fetchDashboardStats();
+      // Use the institution admin's USER ID, not the institution ID
+      const response = await axios.put(`http://localhost:5000/api/admin/users/${institutionAdmin.id}/status`, {
+        status: newStatus
+      });
+
+      if (response.data.success) {
+        // Update local state - only update the specific institution
+        setInstitutions(prev => prev.map(inst => 
+          inst.id === institutionId ? { ...inst, status: newStatus } : inst
+        ));
+        
+        // Add to recent activities
+        const newActivity = {
+          id: Date.now(),
+          action: `Institution ${newStatus === 'active' ? 'Enabled' : 'Disabled'}`,
+          target: institutionAdmin.name || 'Institution',
+          admin: 'Super Admin',
+          time: 'Just now'
+        };
+        setRecentActivities(prev => [newActivity, ...prev.slice(0, 4)]);
+        
+        // Refresh stats
+        fetchDashboardStats();
+      }
+    } catch (error) {
+      console.error('Error updating institution status:', error);
+      setError('Failed to update institution status');
     }
-  } catch (error) {
-    console.error('Error updating institution status:', error);
-    setError('Failed to update institution status');
-  }
-};
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      logout();
+    }
+  };
 
   // Handle adding new institution
   const handleAddInstitution = (newInstitution) => {
@@ -275,6 +281,14 @@ const toggleInstitutionStatus = async (institutionId, currentStatus) => {
     }
   }, [institutions, users]);
 
+  // Get current user - SEPARATED from generateActivities function
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user) {
+      setCurrentUser(user);
+    }
+  }, []);
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header with Navigation */}
@@ -283,12 +297,23 @@ const toggleInstitutionStatus = async (institutionId, currentStatus) => {
           <h1 className="text-2xl font-bold text-gray-800">Super Admin Dashboard</h1>
           <p className="text-gray-600">System-wide administration and monitoring</p>
         </div>
-        <button 
-          onClick={() => navigateTo('home')}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          ← Back to Home
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => navigateTo('home')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            ← Back to Home
+          </button>
+          <button 
+            onClick={handleLogout}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -500,7 +525,6 @@ const toggleInstitutionStatus = async (institutionId, currentStatus) => {
                             >
                               View
                             </button>
-                            {/* REMOVED EDIT BUTTON */}
                             <button 
                               onClick={() => toggleInstitutionStatus(inst.id, inst.status)}
                               className={`text-sm ${
@@ -600,9 +624,8 @@ const toggleInstitutionStatus = async (institutionId, currentStatus) => {
                             >
                               View
                             </button>
-                            {/* REMOVED EDIT BUTTON */}
                             <button 
-                              onClick={() => toggleUserStatus(user.id, user.status, user.email, user.role)}
+                              onClick={() => toggleUserStatus(user.id, user.status)}
                               className={`text-sm ${
                                 user.status === 'active' 
                                   ? 'text-red-600 hover:text-red-800' 

@@ -108,4 +108,11 @@ const Complaint = sequelize.define('Complaint', {
   timestamps: true
 });
 
+Complaint.associate = function(models) {
+  Complaint.belongsTo(models.User, { 
+    foreignKey: 'citizenId', 
+    as: 'citizen' 
+  });
+};
+
 module.exports = Complaint;

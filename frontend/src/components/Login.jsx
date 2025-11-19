@@ -1,5 +1,5 @@
 // Login.jsx - Updated version
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Login = () => {
@@ -9,11 +9,28 @@ const Login = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(false);
 
   // Hardcoded Super Admin Credentials
   const SUPER_ADMIN_CREDENTIALS = {
     email: 'superadmin@menyesha.gov.rw',
     password: 'SuperAdmin123!'
+  };
+
+  // Add this INSIDE the Login component
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // User is already logged in, show logout option
+      setAlreadyLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogoutFromLogin = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setAlreadyLoggedIn(false);
+    window.location.reload();
   };
 
   const handleSubmit = async (e) => {
@@ -95,6 +112,38 @@ const Login = () => {
   const goToSignUp = () => {
     window.location.href = '/signup';
   };
+
+  // Show logout option if already logged in
+  if (alreadyLoggedIn) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-md mx-auto">
+          <button
+            onClick={goToHome}
+            className="mb-6 text-menyesha-blue hover:underline flex items-center text-lg font-medium"
+          >
+            ← Back to Home
+          </button>
+
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <h2 className="text-3xl font-bold text-menyesha-blue mb-4">
+              Already Logged In
+            </h2>
+            <p className="text-gray-600 mb-4">
+              You are already logged in as <strong>{user.email}</strong>
+            </p>
+            <button
+              onClick={handleLogoutFromLogin}
+              className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              Logout and Sign In as Different User
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">

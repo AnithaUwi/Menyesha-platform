@@ -354,6 +354,40 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// routes/admin.js - Add this route
+
+// ✅ GET ALL INSTITUTIONS FOR COMPLAINT FORM
+router.get('/all-institutions', async (req, res) => {
+  try {
+    const institutions = await User.findAll({
+      where: { 
+        role: 'institution_admin',
+        status: 'active'
+      },
+      attributes: ['id', 'institutionName', 'institutionCode', 'institutionCategory'],
+      order: [['institutionName', 'ASC']]
+    });
+
+    // Format for frontend dropdown
+    const formattedInstitutions = institutions.map(inst => ({
+      id: inst.id,
+      name: inst.institutionName,
+      code: inst.institutionCode,
+      category: inst.institutionCategory || 'General'
+    }));
+
+    res.json({
+      success: true,
+      data: formattedInstitutions
+    });
+  } catch (error) {
+    console.error('Get institutions error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch institutions'
+    });
+  }
+});
 // Activate/Deactivate user
 // ✅ CORRECT: Update user status (individual user only)
 router.put('/users/:id/status', async (req, res) => {
@@ -449,6 +483,33 @@ router.put('/institutions/:id/status', async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: 'Failed to update institution status' 
+    });
+  }
+});
+// TEMPORARY: Reactivate all deactivated institution admins
+router.put('/reactivate-all-institution-admins', async (req, res) => {
+  try {
+    const result = await User.update(
+      { status: 'active' },
+      { 
+        where: { 
+          role: 'institution_admin', 
+          status: 'inactive' 
+        } 
+      }
+    );
+    
+    console.log(`✅ Reactivated ${result[0]} institution admins`);
+    
+    res.json({ 
+      success: true, 
+      message: `Reactivated ${result[0]} institution admins successfully` 
+    });
+  } catch (error) {
+    console.error('Reactivate institution admins error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to reactivate institution admins' 
     });
   }
 });

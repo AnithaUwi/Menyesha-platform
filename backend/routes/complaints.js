@@ -219,4 +219,162 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// ✅ GET COMPLAINT DETAILS BY ID
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🔍 Fetching detailed complaint: ${id}`);
+
+    const complaint = await Complaint.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'citizen',
+          attributes: ['id', 'fullName', 'email', 'phone']
+        }
+      ]
+    });
+
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        error: 'Complaint not found'
+      });
+    }
+
+    // Format the response for frontend
+    const formattedComplaint = {
+      id: complaint.id,
+      title: complaint.title,
+      description: complaint.description,
+      specificLocation: complaint.specificLocation,
+      
+      // Location hierarchy
+      province: complaint.province,
+      district: complaint.district,
+      sector: complaint.sector,
+      cell: complaint.cell,
+      village: complaint.village,
+      
+      // Institution & Category
+      institution: complaint.institution,
+      category: complaint.category,
+      
+      // Status & Priority
+      status: complaint.status,
+      priority: complaint.priority,
+      
+      // Evidence
+      evidenceImages: complaint.evidenceImages || [],
+      
+      // User information
+      submittedBy: complaint.citizen ? {
+        id: complaint.citizen.id,
+        fullName: complaint.citizen.fullName,
+        email: complaint.citizen.email,
+        phone: complaint.citizen.phone
+      } : {
+        fullName: complaint.anonymousName || 'Anonymous',
+        email: complaint.anonymousEmail || 'Not provided',
+        phone: complaint.anonymousPhone || 'Not provided'
+      },
+      
+      // Timestamps
+      submittedAt: complaint.createdAt,
+      resolvedAt: complaint.resolvedAt,
+      updatedAt: complaint.updatedAt
+    };
+
+    console.log(`✅ Found complaint: ${formattedComplaint.title}`);
+
+    res.json({
+      success: true,
+      data: formattedComplaint
+    });
+
+  } catch (error) {
+    console.error('Get complaint details error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch complaint details: ' + error.message
+    });
+  }
+});
+
+// ✅ UPDATE COMPLAINT STATUS
+router.put('/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, priority } = req.body;
+    
+    console.log(`🔄 Updating complaint ${id} status to: ${status}`);
+
+    const complaint = await Complaint.findByPk(id);
+    
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        error: 'Complaint not found'
+      });
+    }
+
+    // Validate status
+    const validStatuses = ['submitted', 'in_progress', 'resolved', 'closed'];
+    if (status && !validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+      });
+    }
+
+    // Validate priority
+    const validPriorities = ['low', 'medium', 'high', 'urgent'];
+    if (priority && !validPriorities.includes(priority)) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid priority. Must be one of: ${validPriorities.join(', ')}`
+      });
+    }
+
+    // Update fields
+    const updateData = {};
+    if (status) {
+      updateData.status = status;
+      
+      // Set resolvedAt timestamp if status is being changed to resolved
+      if (status === 'resolved' && complaint.status !== 'resolved') {
+        updateData.resolvedAt = new Date();
+      }
+    }
+    
+    if (priority) {
+      updateData.priority = priority;
+    }
+
+    // Update the complaint
+    await complaint.update(updateData);
+
+    console.log(`✅ Updated complaint ${id}: status=${status || 'unchanged'}, priority=${priority || 'unchanged'}`);
+
+    res.json({
+      success: true,
+      message: `Complaint ${status ? 'status' : 'priority'} updated successfully`,
+      data: {
+        id: complaint.id,
+        status: complaint.status,
+        priority: complaint.priority,
+        resolvedAt: complaint.resolvedAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Update complaint status error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update complaint status: ' + error.message
+    });
+  }
+});
+
 module.exports = router;
