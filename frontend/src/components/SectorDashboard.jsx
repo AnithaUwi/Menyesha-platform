@@ -192,7 +192,21 @@ const handleLogout = () => {
               >
                 ← Back to Home
               </button>
- <button 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Sector Admin Dashboard</h1>
+                <p className="text-sm text-gray-600">
+                  {sectorData.name}, {sectorData.district}
+                  {loading.stats && <span className="ml-2 text-gray-400">Loading...</span>}
+                </p>
+
+               
+ 
+              </div>    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<button 
             onClick={handleLogout}
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
           >
@@ -202,21 +216,21 @@ const handleLogout = () => {
             Logout
           </button>
 
-
-
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Sector Admin Dashboard</h1>
-                <p className="text-sm text-gray-600">
-                  {sectorData.name}, {sectorData.district}
-                  {loading.stats && <span className="ml-2 text-gray-400">Loading...</span>}
-                </p>
-              </div>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">Welcome, {sectorData.adminName}</span>
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                 SA
+
+
+
+                
               </div>
+
+              
+              
+
+              
             </div>
           </div>
         </div>
