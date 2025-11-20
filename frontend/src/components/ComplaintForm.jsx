@@ -285,7 +285,7 @@ const ComplaintForm = () => {
       // Get auth token if logged in
       const token = localStorage.getItem('token');
       
-      const config = {
+      const axiosconfig = {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -293,7 +293,7 @@ const ComplaintForm = () => {
 
       // Add authorization header if user is logged in
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        axiosconfig.headers.Authorization = `Bearer ${token}`;
       }
 
       console.log('🔄 Sending complaint to backend...');
