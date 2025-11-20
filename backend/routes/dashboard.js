@@ -1,4 +1,4 @@
-// routes/dashboard.js
+
 const express = require('express');
 const Complaint = require('../models/Complaint');
 const User = require('../models/user');
@@ -28,7 +28,7 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-// ✅ CITIZEN DASHBOARD DATA
+//  CITIZEN DASHBOARD DATA
 router.get('/citizen', authenticate, async (req, res) => {
   try {
     const userId = req.user.id;

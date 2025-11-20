@@ -35,7 +35,7 @@ const upload = multer({
   }
 });
 
-// ✅ REGISTER - Citizens only (with file upload)
+//  REGISTER - Citizens only (with file upload)
 router.post('/register', 
   upload.single('idCard'), // Handle single file upload
   [
@@ -112,7 +112,7 @@ router.post('/register',
   }
 );
 
-// ✅ LOGIN - All users (WITH DEBUG LOGS)
+
 router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
@@ -128,19 +128,19 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    console.log('🔐 LOGIN ATTEMPT:', { email, passwordLength: password?.length });
+    console.log(' LOGIN ATTEMPT:', { email, passwordLength: password?.length });
 
     // Find user by email
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      console.log('❌ USER NOT FOUND:', email);
+      console.log(' USER NOT FOUND:', email);
       return res.status(400).json({
         success: false,
         error: 'Invalid email or password'
       });
     }
 
-    console.log('✅ USER FOUND:', {
+    console.log(' USER FOUND:', {
       id: user.id,
       email: user.email,
       role: user.role,
@@ -151,34 +151,34 @@ router.post('/login', [
 
     // Check if account is active
     if (user.status !== 'active') {
-      console.log('❌ ACCOUNT INACTIVE:', email);
+      console.log(' ACCOUNT INACTIVE:', email);
       return res.status(400).json({
         success: false,
         error: 'Account is not active'
       });
     }
 
-    // DEBUG: Manual password check
-    console.log('🔐 COMPARING PASSWORDS...');
-    console.log('🔐 Provided password:', `"${password}" (${password?.length} chars)`);
-    console.log('🔐 Stored hash preview:', user.password?.substring(0, 20) + '...');
+   
+    console.log(' COMPARING PASSWORDS...');
+    console.log(' Provided password:', `"${password}" (${password?.length} chars)`);
+    console.log(' Stored hash preview:', user.password?.substring(0, 20) + '...');
     
     const isPasswordValid = await user.comparePassword(password);
-    console.log('🔐 Password valid:', isPasswordValid);
+    console.log(' Password valid:', isPasswordValid);
 
     // Manual verification for debugging
     const manualCheck = await bcrypt.compare(password, user.password);
-    console.log('🔐 Manual bcrypt check:', manualCheck);
+    console.log(' Manual bcrypt check:', manualCheck);
 
     if (!isPasswordValid) {
-      console.log('❌ PASSWORD INVALID for user:', email);
+      console.log(' PASSWORD INVALID for user:', email);
       return res.status(400).json({
         success: false,
         error: 'Invalid email or password'
       });
     }
 
-    console.log('✅ LOGIN SUCCESSFUL for user:', email, 'Role:', user.role);
+    console.log(' LOGIN SUCCESSFUL for user:', email, 'Role:', user.role);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -206,7 +206,7 @@ router.post('/login', [
     });
 
   } catch (error) {
-    console.error('❌ Login error:', error);
+    console.error(' Login error:', error);
     res.status(500).json({
       success: false,
       error: 'Server error during login'

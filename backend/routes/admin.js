@@ -1,11 +1,11 @@
 const express = require('express');
 const { validationResult, body } = require('express-validator');
 const User = require('../models/user');
-const { sequelize } = require('../config/database'); // Import sequelize instance
+const { sequelize } = require('../config/database'); 
 
 const router = express.Router();
 
-// ✅ CREATE INSTITUTION ADMIN (Super Admin Only)
+//  CREATE INSTITUTION ADMIN (Super Admin Only)
 router.post('/create-institution', 
   [
     body('fullName').notEmpty().withMessage('Full name is required'),
@@ -17,11 +17,11 @@ router.post('/create-institution',
   ],
   async (req, res) => {
     try {
-      console.log('📥 Received request to create institution:', req.body);
+      console.log(' Received request to create institution:', req.body);
       
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        console.log('❌ Validation errors:', errors.array());
+        console.log(' Validation errors:', errors.array());
         return res.status(400).json({
           success: false,
           error: errors.array()[0].msg
@@ -34,12 +34,12 @@ router.post('/create-institution',
         institutionAddress, institutionDescription 
       } = req.body;
 
-      console.log('🔍 Checking if user exists:', email);
+      console.log(' Checking if user exists:', email);
 
       // Check if email already exists using Sequelize
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
-        console.log('❌ User already exists with email:', email);
+        console.log(' User already exists with email:', email);
         return res.status(400).json({
           success: false,
           error: 'User with this email already exists'
@@ -55,19 +55,19 @@ router.post('/create-institution',
       });
       
       if (existingInstitution) {
-        console.log('❌ Institution code already exists:', institutionCode);
+        console.log(' Institution code already exists:', institutionCode);
         return res.status(400).json({
           success: false,
           error: 'Institution with this code already exists'
         });
       }
 
-      console.log('💾 Creating institution admin in database...');
+      console.log(' Creating institution admin in database...');
       // Create institution admin using Sequelize
       const user = await User.create({
         fullName,
         email,
-        password: password, // Use plain password - model hook will hash it
+        password: password, 
         phone,
         role: 'institution_admin',
         institutionName,
@@ -78,8 +78,8 @@ router.post('/create-institution',
         status: 'active'
       });
 
-      console.log('✅ Institution admin created with ID:', user.id);
-      console.log('🔐 Password stored (should be hashed):', user.password ? user.password.substring(0, 20) + '...' : 'No password');
+      console.log(' Institution admin created with ID:', user.id);
+      console.log(' Password stored (should be hashed):', user.password ? user.password.substring(0, 20) + '...' : 'No password');
 
       res.status(201).json({
         success: true,
@@ -98,9 +98,9 @@ router.post('/create-institution',
       });
 
     } catch (error) {
-      console.error('❌ Create institution admin error:', error);
-      console.error('❌ Error details:', error.message);
-      console.error('❌ Stack trace:', error.stack);
+      console.error(' Create institution admin error:', error);
+      console.error(' Error details:', error.message);
+      console.error(' Stack trace:', error.stack);
       
       res.status(500).json({
         success: false,
@@ -110,7 +110,7 @@ router.post('/create-institution',
   }
 );
 
-// ✅ CREATE SECTOR ADMIN (Super Admin Only) - FIXED PASSWORD
+// CREATE SECTOR ADMIN (Super Admin Only)
 router.post('/create-sector', 
   [
     body('fullName').notEmpty().withMessage('Full name is required'),
@@ -161,11 +161,11 @@ router.post('/create-sector',
         });
       }
 
-      // Create sector admin using Sequelize - USE PLAIN PASSWORD
+      // Create sector admin using Sequelize 
       const user = await User.create({
         fullName,
         email,
-        password: password, // Use plain password - model hook will hash it
+        password: password, 
         phone,
         role: 'sector_admin',
         sectorName,
@@ -175,8 +175,8 @@ router.post('/create-sector',
         status: 'active'
       });
 
-      console.log('✅ Sector admin created with ID:', user.id);
-      console.log('🔐 Password stored (should be hashed):', user.password ? user.password.substring(0, 20) + '...' : 'No password');
+      console.log('Sector admin created with ID:', user.id);
+      console.log(' Password stored (should be hashed):', user.password ? user.password.substring(0, 20) + '...' : 'No password');
 
       res.status(201).json({
         success: true,
@@ -197,8 +197,8 @@ router.post('/create-sector',
       });
 
     } catch (error) {
-      console.error('❌ Create sector admin error:', error);
-      console.error('❌ Error details:', error.message);
+      console.error(' Create sector admin error:', error);
+      console.error(' Error details:', error.message);
       
       res.status(500).json({
         success: false,
@@ -208,7 +208,7 @@ router.post('/create-sector',
   }
 );
 
-// ✅ GET ALL INSTITUTION ADMINS
+//  GET ALL INSTITUTION ADMINS
 router.get('/institutions', async (req, res) => {
   try {
     const institutionAdmins = await User.findAll({
@@ -232,7 +232,7 @@ router.get('/institutions', async (req, res) => {
   }
 });
 
-// ✅ GET ALL SECTOR ADMINS
+//  GET ALL SECTOR ADMINS
 router.get('/sectors', async (req, res) => {
   try {
     const sectorAdmins = await User.findAll({
@@ -256,7 +256,7 @@ router.get('/sectors', async (req, res) => {
   }
 });
 
-// ✅ GET DASHBOARD STATISTICS
+//  GET DASHBOARD STATISTICS
 router.get('/dashboard-stats', async (req, res) => {
   try {
     const totalUsers = await User.count();
@@ -288,30 +288,30 @@ router.get('/dashboard-stats', async (req, res) => {
   }
 });
 
-// ✅ UPDATED TEST ROUTE USING SEQUELIZE
+//  UPDATED TEST ROUTE USING SEQUELIZE
 router.get('/test-db', async (req, res) => {
   try {
-    console.log('🧪 Testing database connection with Sequelize...');
+    console.log(' Testing database connection with Sequelize...');
     
     // Test basic query
     const totalUsers = await User.count();
-    console.log('✅ Basic query works. Total users:', totalUsers);
+    console.log(' Basic query works. Total users:', totalUsers);
     
     // Test if we can create a record
     const testUser = await User.create({
       fullName: 'Test User',
       email: 'test@test.com',
-      password: 'test123', // Plain password - model will hash it
+      password: 'test123', 
       phone: '+250788000000',
       role: 'citizen',
       status: 'active'
     });
-    console.log('✅ Insert test passed. New ID:', testUser.id);
-    console.log('🔐 Test user password stored:', testUser.password ? testUser.password.substring(0, 20) + '...' : 'No password');
+    console.log(' Insert test passed. New ID:', testUser.id);
+    console.log(' Test user password stored:', testUser.password ? testUser.password.substring(0, 20) + '...' : 'No password');
     
     // Clean up
     await User.destroy({ where: { email: 'test@test.com' } });
-    console.log('✅ Cleanup completed');
+    console.log(' Cleanup completed');
     
     res.json({
       success: true,
@@ -321,9 +321,9 @@ router.get('/test-db', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Database test failed:', error);
-    console.error('❌ Error details:', error.message);
-    console.error('❌ Stack trace:', error.stack);
+    console.error(' Database test failed:', error);
+    console.error(' Error details:', error.message);
+    console.error(' Stack trace:', error.stack);
     res.status(500).json({
       success: false,
       error: 'Database test failed: ' + error.message
@@ -354,9 +354,9 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// routes/admin.js - Add this route
 
-// ✅ GET ALL INSTITUTIONS FOR COMPLAINT FORM
+
+//  GET ALL INSTITUTIONS FOR COMPLAINT FORM
 router.get('/all-institutions', async (req, res) => {
   try {
     const institutions = await User.findAll({
@@ -389,7 +389,7 @@ router.get('/all-institutions', async (req, res) => {
   }
 });
 // Activate/Deactivate user
-// ✅ CORRECT: Update user status (individual user only)
+//  Update user status (individual user only)
 router.put('/users/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
@@ -411,7 +411,7 @@ router.put('/users/:id/status', async (req, res) => {
     user.status = status;
     await user.save();
 
-    console.log(`✅ Updated ONLY user ${user.email} to status: ${status}`);
+    console.log(` Updated ONLY user ${user.email} to status: ${status}`);
 
     res.json({ 
       success: true, 
@@ -486,7 +486,7 @@ router.put('/institutions/:id/status', async (req, res) => {
     });
   }
 });
-// TEMPORARY: Reactivate all deactivated institution admins
+
 router.put('/reactivate-all-institution-admins', async (req, res) => {
   try {
     const result = await User.update(
@@ -499,7 +499,7 @@ router.put('/reactivate-all-institution-admins', async (req, res) => {
       }
     );
     
-    console.log(`✅ Reactivated ${result[0]} institution admins`);
+    console.log(`Reactivated ${result[0]} institution admins`);
     
     res.json({ 
       success: true, 

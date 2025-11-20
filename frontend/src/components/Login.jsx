@@ -1,4 +1,4 @@
-// Login.jsx - Updated version
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -17,7 +17,7 @@ const Login = () => {
     password: 'SuperAdmin123!'
   };
 
-  // Add this INSIDE the Login component
+  
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {

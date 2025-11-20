@@ -1,4 +1,4 @@
-// config/database.js
+
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
@@ -13,10 +13,10 @@ const sequelize = new Sequelize({
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ SQLite Database Connected Successfully!');
-    console.log('📁 Database file: menyesha.sqlite (created automatically)');
+    console.log('SQLite Database Connected Successfully!');
+    console.log(' Database file: menyesha.sqlite (created automatically)');
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error(' Database connection failed:', error);
   }
 };
 

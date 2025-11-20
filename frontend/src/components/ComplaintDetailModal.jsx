@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// ✅ FIXED: Added onStatusUpdate parameter
+//StatusUpdate parameter
 const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) => {
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState(false); // ✅ ADDED: updating state
+  const [updating, setUpdating] = useState(false); 
   const [error, setError] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [successMessage, setSuccessMessage] = useState('');
@@ -42,7 +42,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
     }
   };
 
-  // ✅ NEW: Update complaint status
+  //complaint status
   const updateComplaintStatus = async (newStatus) => {
     if (!complaintId) return;
     
@@ -83,7 +83,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
     }
   };
 
-  // ✅ NEW: Update complaint priority
+  // complaint priority
   const updateComplaintPriority = async (newPriority) => {
     if (!complaintId) return;
     
@@ -128,9 +128,9 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
   useEffect(() => {
     if (isOpen && complaintId) {
       fetchComplaintDetails();
-      setCurrentImageIndex(0); // Reset image carousel
-      setSuccessMessage(''); // Clear success messages
-      setError(''); // Clear errors    
+      setCurrentImageIndex(0); 
+      setSuccessMessage(''); 
+      setError('');    
     }
   }, [isOpen, complaintId]);
 
@@ -195,7 +195,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
     }
   };
 
-  // ✅ NEW: Get next status options
+  //  Get next status options
   const getNextStatusOptions = (currentStatus) => {
     const statusFlow = {
       'submitted': ['in_progress', 'resolved'],
@@ -207,7 +207,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
     return statusFlow[currentStatus] || [];
   };
 
-  // ✅ NEW: Get priority options
+  //  Get priority options
   const getPriorityOptions = () => {
     return ['low', 'medium', 'high', 'urgent'];
   };
@@ -238,7 +238,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
         {/* Success Message */}
         {successMessage && (
           <div className="p-4 m-4 bg-green-100 text-green-800 rounded-lg border border-green-300">
-            ✅ {successMessage}
+             {successMessage}
           </div>
         )}
 
@@ -266,7 +266,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
         {/* Complaint Details */}
         {complaint && !loading && (
           <div className="p-6 space-y-6">
-            {/* ✅ NEW: Status & Priority Update Section */}
+            {/* Status & Priority Update Section */}
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Status & Priority</h3>
               
@@ -514,7 +514,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
   );
 };
 
-// ✅ ADD: Default props for onStatusUpdate
+//  Default props for onStatusUpdate
 ComplaintDetailModal.defaultProps = {
   onStatusUpdate: () => {}
 };

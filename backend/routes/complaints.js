@@ -1,4 +1,4 @@
-// routes/complaints.js
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -33,7 +33,7 @@ const upload = multer({
   }
 });
 
-// ✅ SUBMIT COMPLAINT (Anonymous or Authenticated)
+//  SUBMIT COMPLAINT (Anonymous or Authenticated)
 router.post('/',
   upload.array('evidenceImages', 5), // Allow up to 5 images
   [
@@ -127,7 +127,7 @@ router.post('/',
   }
 );
 
-// ✅ GET COMPLAINTS (Role-based)
+//  GET COMPLAINTS (Role-based)
 router.get('/', async (req, res) => {
   try {
     let whereClause = {};
@@ -185,14 +185,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ GET COMPLAINT STATISTICS
+//  GET COMPLAINT STATISTICS
 router.get('/stats', async (req, res) => {
   try {
     let whereClause = {};
 
     // Add role-based filtering similar to above
     if (req.headers.authorization) {
-      // ... same role logic as above
+     
     }
 
     const total = await Complaint.count({ where: whereClause });
@@ -219,12 +219,12 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// ✅ GET COMPLAINT DETAILS BY ID
+//  GET COMPLAINT DETAILS BY ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    console.log(`🔍 Fetching detailed complaint: ${id}`);
+    console.log(` Fetching detailed complaint: ${id}`);
 
     const complaint = await Complaint.findByPk(id, {
       include: [
@@ -286,7 +286,7 @@ router.get('/:id', async (req, res) => {
       updatedAt: complaint.updatedAt
     };
 
-    console.log(`✅ Found complaint: ${formattedComplaint.title}`);
+    console.log(` Found complaint: ${formattedComplaint.title}`);
 
     res.json({
       success: true,
@@ -302,7 +302,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ UPDATE COMPLAINT STATUS
+//  UPDATE COMPLAINT STATUS
 router.put('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
@@ -355,7 +355,7 @@ router.put('/:id/status', async (req, res) => {
     // Update the complaint
     await complaint.update(updateData);
 
-    console.log(`✅ Updated complaint ${id}: status=${status || 'unchanged'}, priority=${priority || 'unchanged'}`);
+    console.log(` Updated complaint ${id}: status=${status || 'unchanged'}, priority=${priority || 'unchanged'}`);
 
     res.json({
       success: true,

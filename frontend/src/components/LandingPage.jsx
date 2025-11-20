@@ -1,4 +1,4 @@
-// LandingPage.jsx - Fixed navigation
+
 import React from 'react';
 
 const LandingPage = (props) => {

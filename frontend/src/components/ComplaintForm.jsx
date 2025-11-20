@@ -1,4 +1,4 @@
-// ComplaintForm.jsx - Updated with REAL institutions from backend
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -84,7 +84,7 @@ const ComplaintForm = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  // ✅ NEW: Fetch REAL institutions from backend
+  // Fetch REAL institutions from backend
   const fetchInstitutions = async () => {
     try {
       setLoadingInstitutions(true);
@@ -94,10 +94,10 @@ const ComplaintForm = () => {
       
       if (response.data.success) {
         setInstitutions(response.data.data);
-        console.log('✅ Loaded institutions:', response.data.data);
+        console.log(' Loaded institutions:', response.data.data);
       }
     } catch (error) {
-      console.error('❌ Error fetching institutions:', error);
+      console.error(' Error fetching institutions:', error);
       setMessage({
         type: 'error',
         text: 'Failed to load institutions. Please refresh the page.'
@@ -120,12 +120,11 @@ const ComplaintForm = () => {
     // Load location data
     setLocations(rwandaData);
     
-    // ✅ Load REAL institutions from backend
+    //  Load REAL institutions from backend
     fetchInstitutions();
   }, []);
 
-  // ... (keep all your existing functions: handleProvinceChange, handleDistrictChange, etc.)
-  // Handle location cascading - KEEP ALL YOUR EXISTING FUNCTIONS
+
   const handleProvinceChange = (provinceId) => {
     const filteredDistricts = rwandaData.districts.filter(d => d.province_id == provinceId);
     setLocations(prev => ({
@@ -223,7 +222,7 @@ const ComplaintForm = () => {
     }
   };
 
-  // UPDATED: Handle form submission - use institution NAME instead of ID
+  //  Handle form submission 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -260,7 +259,7 @@ const ComplaintForm = () => {
       submitData.append('cell', cellName || '');
       submitData.append('village', villageName || '');
       
-      // ✅ FIXED: Get institution NAME from selected institution
+      // Get institution NAME from selected institution
       const selectedInstitution = institutions.find(i => i.id == formData.institution_id);
       if (selectedInstitution) {
         submitData.append('institution', selectedInstitution.name);
@@ -308,7 +307,7 @@ const ComplaintForm = () => {
       if (response.data.success) {
         setMessage({
           type: 'success',
-          text: `✅ ${response.data.message} ${isLoggedIn ? 'You can track it in your dashboard.' : 'Please save your email for status updates.'}`
+          text: ` ${response.data.message} ${isLoggedIn ? 'You can track it in your dashboard.' : 'Please save your email for status updates.'}`
         });
 
         // Reset form
@@ -328,11 +327,11 @@ const ComplaintForm = () => {
         });
         setImagePreview('');
         
-        console.log('✅ Complaint submitted successfully:', response.data);
+        console.log(' Complaint submitted successfully:', response.data);
       }
 
     } catch (error) {
-      console.error('❌ Complaint submission error:', error);
+      console.error(' Complaint submission error:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to submit complaint. Please try again.';
       
       setMessage({
@@ -359,7 +358,7 @@ const ComplaintForm = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Back Button - Fixed to go to landing page */}
+        {/* Back button  to go to landing page */}
         <button
           onClick={goToHome}
           className="mb-6 text-menyesha-blue hover:underline flex items-center text-lg font-medium"
@@ -391,8 +390,8 @@ const ComplaintForm = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* ... (keep all your existing form sections the same) */}
-            {/* Problem Details Section - KEEP EXISTING */}
+            {/* existing form sections */}
+            {/* Problem Details Section */}
             <div className="border-b border-gray-200 pb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Problem Details</h3>
               
@@ -475,7 +474,7 @@ const ComplaintForm = () => {
               </div>
             </div>
 
-            {/* Rwanda Location Hierarchy Section - KEEP EXISTING */}
+            {/* Rwanda Location Hierarchy Section  */}
             <div className="border-b border-gray-200 pb-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Location in Rwanda</h3>
               
@@ -587,7 +586,7 @@ const ComplaintForm = () => {
                   </select>
                 </div>
 
-                {/* ✅ UPDATED: Institution Dropdown with REAL data */}
+                {/*  Institution Dropdown with REAL data */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Related Institution

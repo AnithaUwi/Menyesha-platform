@@ -1,4 +1,4 @@
-// utils/auth.js
+
 export const logout = () => {
   // Clear all authentication data
   localStorage.removeItem('token');

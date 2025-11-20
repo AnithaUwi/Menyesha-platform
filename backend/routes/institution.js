@@ -24,7 +24,7 @@ router.get('/dashboard-stats', auth, async (req, res) => {
     const institutionAdmin = req.user;
     const institutionName = institutionAdmin.institutionName;
 
-    console.log('📊 Fetching stats for institution:', institutionName);
+    console.log(' Fetching stats for institution:', institutionName);
 
     // Get complaints for this institution
     const totalComplaints = await Complaint.count({ 
@@ -45,7 +45,7 @@ router.get('/dashboard-stats', auth, async (req, res) => {
       } 
     });
 
-    console.log('📈 Complaint counts:', { totalComplaints, resolvedComplaints, inProgressComplaints });
+    console.log('Complaint counts:', { totalComplaints, resolvedComplaints, inProgressComplaints });
 
     // Calculate average resolution time
     let avgResolutionTime = "0 days";
@@ -67,7 +67,7 @@ router.get('/dashboard-stats', auth, async (req, res) => {
         avgResolutionTime = `${(totalDays / resolvedComplaintsData.length).toFixed(1)} days`;
       }
     } catch (timeError) {
-      console.log('⏰ Could not calculate resolution time, using default');
+      console.log(' Could not calculate resolution time, using default');
     }
 
     res.json({
@@ -115,7 +115,7 @@ router.get('/complaints', auth, async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    console.log('✅ Found', complaints.length, 'complaints');
+    console.log('Found', complaints.length, 'complaints');
 
     // Format complaints for frontend
     const formattedComplaints = complaints.map(complaint => ({

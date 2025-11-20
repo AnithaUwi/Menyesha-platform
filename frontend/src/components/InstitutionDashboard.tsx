@@ -1,4 +1,4 @@
-// components/InstitutionDashboard.tsx
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ComplaintDetailModal from './ComplaintDetailModal';
@@ -67,7 +67,7 @@ const InstitutionDashboard = () => {
     window.location.hash = page;
   };
 
-  // Get token from localStorage (assuming you store it there after login)
+  // Get token from localStorage
   const getToken = (): string => {
     return localStorage.getItem('token') || sessionStorage.getItem('token') || '';
   };
@@ -134,7 +134,7 @@ const InstitutionDashboard = () => {
 
   // Update complaint status
   const handleUpdateStatus = (complaintId: number, newStatus: string): void => {
-    // TODO: Implement status update
+    // Implement status update
     console.log('Update status:', complaintId, newStatus);
     alert(`Status update feature coming soon!`);
   };
@@ -161,7 +161,7 @@ const InstitutionDashboard = () => {
 
   // Refetch complaints when filters change
   useEffect(() => {
-    if (!loading.stats) { // Only refetch if initial load is done
+    if (!loading.stats) { 
       fetchComplaints();
     }
   }, [statusFilter, priorityFilter]);

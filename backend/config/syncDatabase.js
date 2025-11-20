@@ -1,14 +1,14 @@
-// config/syncDatabase.js
+
 const { sequelize } = require('./database');
 const User = require('../models/user');
 const Complaint = require('../models/Complaint');
 
 const syncDatabase = async () => {
   try {
-    // TEMPORARY FIX: Use safe sync without altering tables
+    
     await sequelize.sync({ force: false, alter: false });
-    console.log('✅ Database connected successfully!');
-    console.log('📊 Tables: users, complaints');
+    console.log(' Database connected successfully!');
+    console.log(' Tables: users, complaints');
     
     // Set up model associations
     Object.keys(sequelize.models).forEach(modelName => {
@@ -16,11 +16,11 @@ const syncDatabase = async () => {
         sequelize.models[modelName].associate(sequelize.models);
       }
     });
-    console.log('🔗 Model associations set up successfully!');
+    console.log(' Model associations set up successfully!');
     
   } catch (error) {
-    console.error('❌ Database sync error:', error.message);
-    console.log('💡 Tip: This is usually safe - your tables already exist');
+    console.error(' Database sync error:', error.message);
+    console.log(' Tip: This is usually safe - your tables already exist');
   }
 };
 

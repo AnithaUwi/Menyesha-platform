@@ -1,4 +1,4 @@
-// SignUp.jsx - Citizen registration with ID upload
+
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -47,7 +47,7 @@ const SignUp = () => {
         submitData.append('idCard', formData.idCard);
       }
 
-      // In SignUp.jsx - update the handleSubmit function
+      
 const response = await axios.post('http://localhost:5000/api/auth/register', submitData, {
   headers: {
     'Content-Type': 'multipart/form-data'

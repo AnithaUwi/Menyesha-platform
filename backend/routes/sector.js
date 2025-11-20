@@ -24,7 +24,7 @@ router.get('/dashboard-stats', auth, async (req, res) => {
     const sectorAdmin = req.user;
     const sectorName = sectorAdmin.sectorName;
 
-    console.log('📊 Fetching stats for sector:', sectorName);
+    console.log('Fetching stats for sector:', sectorName);
 
     // Get today's date for new complaints
     const today = new Date();
@@ -55,7 +55,7 @@ router.get('/dashboard-stats', auth, async (req, res) => {
       } 
     });
 
-    console.log('📈 Sector complaint counts:', { totalComplaints, newComplaints, inProgress, resolved });
+    console.log(' Sector complaint counts:', { totalComplaints, newComplaints, inProgress, resolved });
 
     res.json({
       success: true,
@@ -83,7 +83,7 @@ router.get('/complaints', auth, async (req, res) => {
     const sectorAdmin = req.user;
     const sectorName = sectorAdmin.sectorName;
 
-    console.log('📋 Fetching complaints for sector:', sectorName);
+    console.log(' Fetching complaints for sector:', sectorName);
 
     const { status, priority } = req.query;
     
@@ -102,7 +102,7 @@ router.get('/complaints', auth, async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    console.log('✅ Found', complaints.length, 'complaints for sector');
+    console.log(' Found', complaints.length, 'complaints for sector');
 
     // Format complaints for frontend
     const formattedComplaints = complaints.map(complaint => ({

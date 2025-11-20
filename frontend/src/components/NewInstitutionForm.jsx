@@ -9,8 +9,8 @@ const NewInstitutionForm = ({ isOpen, onClose, onSave }) => {
     password: 'defaultPassword123',
     phone: '',
     
-    // Role Selection - NEW FIELD
-    role: 'institution_admin', // Default to institution admin
+    
+    role: 'institution_admin', 
     
     // Institution Details  
     institutionName: '',
@@ -19,7 +19,7 @@ const NewInstitutionForm = ({ isOpen, onClose, onSave }) => {
     institutionAddress: '',
     institutionDescription: '',
     
-    // Sector Details - NEW FIELDS
+    // Sector Details 
     sectorName: '',
     sectorCode: '',
     province: '',
@@ -101,14 +101,14 @@ const NewInstitutionForm = ({ isOpen, onClose, onSave }) => {
     try {
       console.log('📥 Sending data to backend:', formData);
       
-      // Choose the correct API endpoint based on role
+      
       const endpoint = formData.role === 'institution_admin' 
         ? 'http://localhost:5000/api/admin/create-institution'
         : 'http://localhost:5000/api/admin/create-sector';
       
       const response = await axios.post(endpoint, formData);
       
-      console.log('✅ Backend response:', response.data);
+      console.log(' Backend response:', response.data);
       
       if (response.data.success) {
         const roleName = formData.role === 'institution_admin' ? 'Institution' : 'Sector';
@@ -124,7 +124,7 @@ const NewInstitutionForm = ({ isOpen, onClose, onSave }) => {
         }, 1500);
       }
     } catch (error) {
-      console.error('❌ API Error:', error);
+      console.error(' API Error:', error);
       const errorMessage = error.response?.data?.error || 'Failed to create admin account';
       setMessage({ 
         type: 'error', 

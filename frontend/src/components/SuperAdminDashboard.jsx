@@ -128,7 +128,7 @@ const SuperAdminDashboard = () => {
       });
 
       if (response.data.success) {
-        // Update local state - only update the specific user
+        // Update local state 
         setUsers(prev => prev.map(user => 
           user.id === userId ? { ...user, status: newStatus } : user
         ));
@@ -170,13 +170,13 @@ const SuperAdminDashboard = () => {
         return;
       }
 
-      // Use the institution admin's USER ID, not the institution ID
+      // Use the institution admin's USER ID
       const response = await axios.put(`http://localhost:5000/api/admin/users/${institutionAdmin.id}/status`, {
         status: newStatus
       });
 
       if (response.data.success) {
-        // Update local state - only update the specific institution
+        // Update local state 
         setInstitutions(prev => prev.map(inst => 
           inst.id === institutionId ? { ...inst, status: newStatus } : inst
         ));
@@ -281,7 +281,7 @@ const SuperAdminDashboard = () => {
     }
   }, [institutions, users]);
 
-  // Get current user - SEPARATED from generateActivities function
+  // Get current user 
   useEffect(() => {
     const user = getCurrentUser();
     if (user) {

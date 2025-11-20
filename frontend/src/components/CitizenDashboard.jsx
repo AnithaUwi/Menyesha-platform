@@ -1,4 +1,3 @@
-// CitizenDashboard.jsx - Updated with backend connection
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { logout, getCurrentUser } from '../utils/auth';

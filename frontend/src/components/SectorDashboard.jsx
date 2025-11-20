@@ -1,4 +1,4 @@
-// SectorDashboard.jsx - Updated with real backend data
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ComplaintDetailModal from './ComplaintDetailModal';
@@ -111,7 +111,7 @@ const handleLogout = () => {
 
   // Update complaint status
   const handleUpdateStatus = (complaintId, newStatus) => {
-    // TODO: Implement status update
+    //  Implement status update
     console.log('Update status:', complaintId, newStatus);
     alert(`Status update feature coming soon!`);
   };
@@ -136,7 +136,7 @@ const handleLogout = () => {
 
   // Refetch complaints when filters change
   useEffect(() => {
-    if (!loading.stats) { // Only refetch if initial load is done
+    if (!loading.stats) { 
       fetchComplaints();
     }
   }, [statusFilter, priorityFilter]);

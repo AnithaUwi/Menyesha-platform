@@ -1,4 +1,4 @@
-// App.js - Fixed with TypeScript types
+
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import ComplaintForm from './components/ComplaintForm';
@@ -10,7 +10,7 @@ import InstitutionDashboard from './components/InstitutionDashboard';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
 import './App.css';
 
-// Define the possible page types - FIXED LINE
+// Define the possible page types 
 type PageType = 'home' | 'complaint' | 'login' | 'signup' | 'dashboard' | 'sector-admin' |'institution-admin' |'super-admin';
 
 function App() {

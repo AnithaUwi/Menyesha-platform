@@ -1,4 +1,4 @@
-// server.js
+
 const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./config/database');
@@ -36,17 +36,17 @@ app.get('/', (req, res) => {
     message: '🎉 Menyesha Backend is working!',
     timestamp: new Date().toISOString(),
     status: 'Server is running perfectly!',
-    database: 'SQLite Connected ✅',
-    authentication: 'Ready ✅'
+    database: 'SQLite Connected ',
+    authentication: 'Ready '
   });
 });
 
 app.get('/api/health', (req, res) => {
   res.json({ 
-    status: '✅ OK',
+    status: 'OK',
     service: 'Menyesha Backend API',
-    database: 'SQLite Connected ✅',
-    authentication: 'Ready ✅',
+    database: 'SQLite Connected ',
+    authentication: 'Ready ',
     timestamp: new Date().toISOString()
   });
 });
@@ -54,11 +54,11 @@ app.get('/api/health', (req, res) => {
 // Test database route
 app.get('/api/test-db', async (req, res) => {
   try {
-    const User = require('./models/user'); // Fixed: capital U
+    const User = require('./models/user'); 
     const userCount = await User.count();
     
     res.json({
-      message: '✅ Database test successful!',
+      message: ' Database test successful!',
       users_count: userCount,
       database: 'SQLite working perfectly',
       timestamp: new Date().toISOString()
@@ -74,10 +74,10 @@ app.get('/api/test-db', async (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📍 Local: http://localhost:${PORT}`);
-  console.log(`❤️  Health: http://localhost:${PORT}/api/health`);
-  console.log(`🗄️  Database: SQLite ✅`);
-  console.log(`🔐 Authentication: Ready ✅`);
-  console.log(`📊 Dashboard: Ready ✅`); // ADD THIS
+  console.log(` Server is running on port ${PORT}`);
+  console.log(` Local: http://localhost:${PORT}`);
+  console.log(`  Health: http://localhost:${PORT}/api/health`);
+  console.log(`  Database: SQLite `);
+  console.log(` Authentication: Ready `);
+  console.log(` Dashboard: Ready `); // ADD THIS
 });

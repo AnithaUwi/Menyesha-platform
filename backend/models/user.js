@@ -40,7 +40,7 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     defaultValue: 'active'
   },
-  // ✅ NEW FIELDS ADDED FOR INSTITUTION ADMIN
+  //  NEW FIELDS ADDED FOR INSTITUTION ADMIN
   institutionName: {
     type: DataTypes.STRING
   },
@@ -56,7 +56,7 @@ const User = sequelize.define('User', {
   institutionDescription: {
     type: DataTypes.TEXT
   },
-  // ✅ NEW FIELDS ADDED FOR SECTOR ADMIN
+  //  NEW FIELDS ADDED FOR SECTOR ADMIN
   sectorName: {
     type: DataTypes.STRING
   },
@@ -82,7 +82,7 @@ const User = sequelize.define('User', {
   }
 });
 
-// Method to check password - KEEP EXISTING
+// Method to check password 
 User.prototype.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
