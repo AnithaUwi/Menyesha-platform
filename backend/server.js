@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./config/database');
+const loadDatabase = require('./config/databaseLoader');
 const syncDatabase = require('./config/syncDatabase');
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
@@ -15,14 +16,34 @@ require('dotenv').config();
 const app = express();
 
 // Connect to database
-testConnection();
-syncDatabase();
+// FIXED: Connect to database PROPERLY
+const initializeDatabase = async () => {
+  try {
+    console.log('🔄 Initializing database...');
+    
+    // 1. First, download/create the database file
+    await loadDatabase();
+    
+    // 2. Then test the connection
+    await testConnection();
+    
+    // 3. Finally sync the database
+    await syncDatabase();
+    
+    console.log(' Database initialization complete!');
+  } catch (error) {
+    console.error(' Database initialization failed:', error);
+  }
+};
+
+// Initialize database on startup
+initializeDatabase();
 
 // Middleware
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://menyesha-platform.vercel.app/',  
+    'https://menyesha-platform.vercel.app',  
     'https://*.vercel.app'                   
   ],
   credentials: true
@@ -40,7 +61,7 @@ app.use('/api/sector', auth, sectorRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
-    message: '🎉 Menyesha Backend is working!',
+    message: ' Menyesha Backend is working!',
     timestamp: new Date().toISOString(),
     status: 'Server is running perfectly!',
     database: 'SQLite Connected ',
@@ -86,5 +107,5 @@ app.listen(PORT, () => {
   console.log(`  Health: http://localhost:${PORT}/api/health`);
   console.log(`  Database: SQLite `);
   console.log(` Authentication: Ready `);
-  console.log(` Dashboard: Ready `); // ADD THIS
+  console.log(` Dashboard: Ready `); 
 });
