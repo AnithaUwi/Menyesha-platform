@@ -23,12 +23,10 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://menyesha-platform.vercel.app',
-    'https://menyesha-platform-git-main-anithauwi-projects.vercel.app',
-    'https://menyesha-platform-*.vercel.app'
+    'https://menyesha-platform-git-main-anithauwis-projects.vercel.app'
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
