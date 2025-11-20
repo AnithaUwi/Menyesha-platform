@@ -7,6 +7,7 @@ const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: path.join(__dirname, '..', 'menyesha.sqlite'), // Creates file automatically
   logging: false, // Clean console output
+  dialectModule: require('better-sqlite3')
 });
 
 // Test connection
