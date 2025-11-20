@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: menyesha-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: your_super_secure_jwt_secret_123456
