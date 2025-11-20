@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ComplaintDetailModal from './ComplaintDetailModal';
 import { logout, getCurrentUser } from '../utils/auth';
+import config from '../config';
 // TypeScript interfaces
 interface InstitutionStats {
   totalComplaints: number;
@@ -78,7 +79,7 @@ const InstitutionDashboard = () => {
       setLoading(prev => ({ ...prev, stats: true }));
       const token = getToken();
       
-      const response = await axios.get('http://localhost:5000/api/institution/dashboard-stats', {
+      const response = await axios.get(`${config.apiUrl}/api/institution/dashboard-stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -107,7 +108,7 @@ const InstitutionDashboard = () => {
       if (statusFilter !== 'All Status') params.status = statusFilter;
       if (priorityFilter !== 'All Priority') params.priority = priorityFilter;
 
-      const response = await axios.get('http://localhost:5000/api/institution/complaints', {
+      const response = await axios.get(`${config.apiUrl}/api/institution/complaints`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ComplaintDetailModal from './ComplaintDetailModal';
 import { logout, getCurrentUser } from '../utils/auth';
+import config from '../config';
 const SectorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -49,7 +50,7 @@ const handleLogout = () => {
       setLoading(prev => ({ ...prev, stats: true }));
       const token = getToken();
       
-      const response = await axios.get('http://localhost:5000/api/sector/dashboard-stats', {
+      const response = await axios.get(`${config.apiUrl}/api/sector/dashboard-stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -84,7 +85,7 @@ const handleLogout = () => {
       if (statusFilter !== 'All Status') params.status = statusFilter;
       if (priorityFilter !== 'All Priority') params.priority = priorityFilter;
 
-      const response = await axios.get('http://localhost:5000/api/sector/complaints', {
+      const response = await axios.get(`${config.apiUrl}/api/sector/complaints`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { logout, getCurrentUser } from '../utils/auth';
+import config from '../config';
 
 const CitizenDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -40,11 +41,13 @@ useEffect(() => {
         }
 
         // Fetch citizen dashboard data
-        const response = await axios.get('http://localhost:5000/api/dashboard/citizen', {
+        const response = await axios.get(`${config.apiUrl}/api/dashboard/citizen`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
+
+        
 
         if (response.data.success) {
           setUserData(response.data.user);

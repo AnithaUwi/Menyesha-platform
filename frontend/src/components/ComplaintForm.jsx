@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import config from '../config';
 
 const ComplaintForm = () => {
   const [formData, setFormData] = useState({
@@ -88,9 +89,9 @@ const ComplaintForm = () => {
   const fetchInstitutions = async () => {
     try {
       setLoadingInstitutions(true);
-      console.log('🔄 Fetching institutions from backend...');
+      console.log(' Fetching institutions from backend...');
       
-      const response = await axios.get('http://localhost:5000/api/admin/all-institutions');
+      const response = await axios.get(`${config.apiUrl}/api/admin/all-institutions`);
       
       if (response.data.success) {
         setInstitutions(response.data.data);
@@ -299,7 +300,7 @@ const ComplaintForm = () => {
 
       // Send to backend
       const response = await axios.post(
-        'http://localhost:5000/api/complaints',
+        `${config.apiUrl}/api/complaints`,
         submitData,
         config
       );

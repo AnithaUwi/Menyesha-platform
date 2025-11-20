@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from '../config';
 
 const NewInstitutionForm = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -103,8 +104,8 @@ const NewInstitutionForm = ({ isOpen, onClose, onSave }) => {
       
       
       const endpoint = formData.role === 'institution_admin' 
-        ? 'http://localhost:5000/api/admin/create-institution'
-        : 'http://localhost:5000/api/admin/create-sector';
+        ? `${config.apiUrl}/api/admin/create-institution`
+        : `${config.apiUrl}/api/admin/create-sector`;
       
       const response = await axios.post(endpoint, formData);
       

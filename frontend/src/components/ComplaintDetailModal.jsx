@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import config from '../config';
 
 //StatusUpdate parameter
 const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) => {
@@ -24,7 +25,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
       setError('');
       const token = getToken();
       
-      const response = await axios.get(`http://localhost:5000/api/complaints/${complaintId}`, {
+      const response = await axios.get(`${config.apiUrl}/api/complaints/${complaintId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -95,7 +96,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
       const token = getToken();
       
       const response = await axios.put(
-        `http://localhost:5000/api/complaints/${complaintId}/status`,
+        `${config.apiUrl}/api/complaints/${complaintId}/status`,
         { priority: newPriority },
         {
           headers: {
@@ -423,7 +424,7 @@ const ComplaintDetailModal = ({ complaintId, isOpen, onClose, onStatusUpdate }) 
                   {/* Image Carousel */}
                   <div className="bg-gray-100 rounded-lg p-4 flex justify-center items-center">
                     <img 
-                      src={`http://localhost:5000/uploads/complaints/${complaint.evidenceImages[currentImageIndex]}`}
+                      src={`${config.apiUrl}/uploads/complaints/${complaint.evidenceImages[currentImageIndex]}`}
                       alt={`Evidence ${currentImageIndex + 1}`}
                       className="max-h-64 max-w-full object-contain rounded"
                     />

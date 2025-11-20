@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NewInstitutionForm from './NewInstitutionForm';
 import { logout, getCurrentUser } from '../utils/auth';
+import config from '../config';
 
 const SuperAdminDashboard = () => {
   // Real data states
@@ -59,7 +60,7 @@ const SuperAdminDashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       setLoading(prev => ({ ...prev, stats: true }));
-      const response = await axios.get('http://localhost:5000/api/admin/dashboard-stats');
+      const response = await axios.get(`${config.apiUrl}/api/admin/dashboard-stats`);
       if (response.data.success) {
         setSystemStats(response.data.data);
       }
@@ -75,7 +76,7 @@ const SuperAdminDashboard = () => {
   const fetchInstitutions = async () => {
     try {
       setLoading(prev => ({ ...prev, institutions: true }));
-      const response = await axios.get('http://localhost:5000/api/admin/institutions');
+      const response = await axios.get(`${config.apiUrl}/api/admin/institutions`);
       if (response.data.success) {
         setInstitutions(response.data.data);
       }
@@ -91,7 +92,7 @@ const SuperAdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       setLoading(prev => ({ ...prev, users: true }));
-      const response = await axios.get('http://localhost:5000/api/admin/users');
+      const response = await axios.get(`${config.apiUrl}/api/admin/users`);
       if (response.data.success) {
         setUsers(response.data.data);
       }
@@ -123,7 +124,7 @@ const SuperAdminDashboard = () => {
 
     try {
       const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      const response = await axios.put(`http://localhost:5000/api/admin/users/${userId}/status`, {
+      const response = await axios.put(`${config.apiUrl}/api/admin/users/${userId}/status`, {
         status: newStatus
       });
 
@@ -171,7 +172,7 @@ const SuperAdminDashboard = () => {
       }
 
       // Use the institution admin's USER ID
-      const response = await axios.put(`http://localhost:5000/api/admin/users/${institutionAdmin.id}/status`, {
+      const response = await axios.put(`${config.apiUrl}/api/admin/users/${institutionAdmin.id}/status`, {
         status: newStatus
       });
 
