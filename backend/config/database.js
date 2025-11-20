@@ -6,7 +6,7 @@ const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: path.join(__dirname, '..', 'menyesha.sqlite'),
   logging: false, // Clean console output
-  // REMOVED: dialectModule: require('sql.js')
+ dialectModule: require('sql.js')
 });
 
 // Test connection
